@@ -219,15 +219,15 @@
                 </div>
                 <div class="bg-gray-100 p-4 rounded-lg shadow-inner">
                     <div class="series-header mb-2">
-                        <h3 class="text-xl font-semibold text-gray-800">4. Retrógrada Inversión (RI)</h3>
-                        <button class="play-button" data-series-type="retrogradeInversion" data-target-id="retrogradeInversionSeries">
+                        <h3 class="text-xl font-semibold text-gray-800">4. Inversión Retrógrada (IR)</h3>
+                        <button class="play-button" data-series-type="inversionRetrograde" data-target-id="inversionRetrogradeSeries">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
                                 <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.077-6.13a1.5 1.5 0 000-2.538L6.3 2.84z" />
                             </svg>
                         </button>
                     </div>
                     <p class="text-sm text-gray-500 mb-4">Es la inversión de la serie, pero leída al revés.</p>
-                    <ul id="retrogradeInversionSeries" class="note-display"></ul>
+                    <ul id="inversionRetrogradeSeries" class="note-display"></ul>
                 </div>
             </div>
 
@@ -251,14 +251,14 @@
                     <h3 class="text-xl font-semibold text-gray-800">Matriz Dodecafónica</h3>
                 </div>
                 <p class="text-sm text-gray-500 mb-4">
-                    Esta tabla de 12x12 contiene las 48 formas posibles de la serie dodecafónica. Haz clic en cualquier celda o encabezado para ver las cuatro formas relacionadas (P, I, R, RI) en el panel de abajo.
+                    Esta tabla de 12x12 contiene las 48 formas posibles de la serie dodecafónica. Haz clic en cualquier celda o encabezado para ver las cuatro formas relacionadas (P, I, R, IR) en el panel de abajo.
                     <br><br>
                     Para leer la matriz:
                     <ul>
                         <li><b>P (Prime):</b> Lee las filas de izquierda a derecha. Los encabezados P están en el lado izquierdo de la matriz.</li>
                         <li><b>I (Inversión):</b> Lee las columnas de arriba abajo. Los encabezados I están en la parte superior de la matriz.</li>
                         <li><b>R (Retrógrada):</b> Lee las filas de derecha a izquierda.</li>
-                        <li><b>RI (Retrógrada Inversión):</b> Lee las columnas de abajo a arriba. Los encabezados RI están en la parte inferior de la matriz.</li>
+                        <li><b>Inversión Retrógrada (IR):</b> Lee las columnas de abajo a arriba. Los encabezados IR están en la parte inferior de la matriz.</li>
                     </ul>
                 </p>
                 <div class="matrix-container">
@@ -306,16 +306,16 @@
                     <ul id="selectedSeriesNotesR" class="note-display"></ul>
                 </div>
 
-                <div id="selectedSeriesInfoRI" class="mb-4 bg-gray-100 p-4 rounded-lg shadow-inner">
+                <div id="selectedSeriesInfoIR" class="mb-4 bg-gray-100 p-4 rounded-lg shadow-inner">
                     <div class="series-header mb-2">
-                        <h4 class="text-lg font-bold text-gray-800" id="seriesTitleRI">Retrógrada Inversión (RI):</h4>
-                        <button class="play-button" data-series-type="RI" data-target-id="selectedSeriesNotesRI">
+                        <h4 class="text-lg font-bold text-gray-800" id="seriesTitleIR">Inversión Retrógrada (IR):</h4>
+                        <button class="play-button" data-series-type="IR" data-target-id="selectedSeriesNotesIR">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
                                 <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.077-6.13a1.5 1.5 0 000-2.538L6.3 2.84z" />
                             </svg>
                         </button>
                     </div>
-                    <ul id="selectedSeriesNotesRI" class="note-display"></ul>
+                    <ul id="selectedSeriesNotesIR" class="note-display"></ul>
                 </div>
             </div>
         </div>
@@ -393,8 +393,8 @@
             // Function to get the retrograde series.
             const getRetrograde = (series) => [...series].reverse();
 
-            // Function to get the retrograde inversion.
-            const getRetrogradeInversion = (series) => getInversion(series).reverse();
+            // Function to get the inversion retrograde.
+            const getInversionRetrograde = (series) => getInversion(series).reverse();
 
             // Function to render a series on the page.
             const renderSeries = (elementId, series) => {
@@ -480,14 +480,14 @@
                 
                 table.appendChild(tbody);
                 
-                // RI headers row at the bottom
+                // IR headers row at the bottom
                 const tfoot = document.createElement('tfoot');
                 const footerRow = document.createElement('tr');
                 footerRow.innerHTML = '<th></th>';
                 matrix[0].forEach((note, index) => {
                     const th = document.createElement('th');
-                    th.textContent = `RI${index}`;
-                    th.setAttribute('data-type', 'RI');
+                    th.textContent = `IR${index}`;
+                    th.setAttribute('data-type', 'IR');
                     th.setAttribute('data-index', index);
                     footerRow.appendChild(th);
                 });
@@ -600,7 +600,7 @@
                     return matrix.map(row => row[index]);
                 } else if (type === 'R') {
                     return getRetrograde(matrix[index]);
-                } else if (type === 'RI') {
+                } else if (type === 'IR') {
                     return getRetrograde(matrix.map(row => row[index]));
                 }
                 return [];
@@ -628,7 +628,7 @@
                     if (type === 'P' || type === 'R') {
                         rowIndex = index;
                         colIndex = (type === 'P') ? 0 : 11;
-                    } else if (type === 'I' || type === 'RI') {
+                    } else if (type === 'I' || type === 'IR') {
                         rowIndex = (type === 'I') ? 0 : 11;
                         colIndex = index;
                     }
@@ -653,8 +653,8 @@
                 const selectedColHeaderI = document.querySelector(`#matrixTable thead tr th[data-type="I"][data-index="${colIndex}"]`);
                 if (selectedColHeaderI) selectedColHeaderI.classList.add('matrix-header-highlight');
 
-                const selectedColHeaderRI = document.querySelector(`#matrixTable tfoot tr th[data-type="RI"][data-index="${colIndex}"]`);
-                if (selectedColHeaderRI) selectedColHeaderRI.classList.add('matrix-header-highlight');
+                const selectedColHeaderIR = document.querySelector(`#matrixTable tfoot tr th[data-type="IR"][data-index="${colIndex}"]`);
+                if (selectedColHeaderIR) selectedColHeaderIR.classList.add('matrix-header-highlight');
 
                 document.querySelectorAll(`#matrixTable tbody tr`).forEach(row => {
                     const colCell = row.querySelector(`td:nth-child(${colIndex + 2})`);
@@ -666,20 +666,20 @@
                     P: getSeriesFromMatrix(currentMatrix, 'P', rowIndex),
                     I: getSeriesFromMatrix(currentMatrix, 'I', colIndex),
                     R: getSeriesFromMatrix(currentMatrix, 'R', rowIndex),
-                    RI: getSeriesFromMatrix(currentMatrix, 'RI', colIndex)
+                    IR: getSeriesFromMatrix(currentMatrix, 'IR', colIndex)
                 };
 
                 // Establecer títulos dinámicos
                 document.getElementById('seriesTitleP').textContent = `Prime (P${rowIndex}):`;
                 document.getElementById('seriesTitleI').textContent = `Inversión (I${colIndex}):`;
                 document.getElementById('seriesTitleR').textContent = `Retrógrada (R${rowIndex}):`;
-                document.getElementById('seriesTitleRI').textContent = `Retrógrada Inversión (RI${colIndex}):`;
+                document.getElementById('seriesTitleIR').textContent = `Inversión Retrógrada (IR${colIndex}):`;
 
                 // Renderizar las series en el panel
                 renderSeries('selectedSeriesNotesP', selectedMatrixSeries.P);
                 renderSeries('selectedSeriesNotesI', selectedMatrixSeries.I);
                 renderSeries('selectedSeriesNotesR', selectedMatrixSeries.R);
-                renderSeries('selectedSeriesNotesRI', selectedMatrixSeries.RI);
+                renderSeries('selectedSeriesNotesIR', selectedMatrixSeries.IR);
                 
                 // Mostrar el panel de series seleccionadas
                 document.getElementById('matrixSeriesDisplay').classList.remove('hidden');
@@ -697,13 +697,13 @@
                 const primeSeries = generateRandomSeries();
                 const inversionSeries = getInversion(primeSeries);
                 const retrogradeSeries = getRetrograde(primeSeries);
-                const retrogradeInversionSeries = getRetrogradeInversion(primeSeries);
+                const inversionRetrogradeSeries = getInversionRetrograde(primeSeries);
 
                 currentSeriesData = {
                     prime: primeSeries,
                     inversion: inversionSeries,
                     retrograde: retrogradeSeries,
-                    retrogradeInversion: retrogradeInversionSeries,
+                    inversionRetrograde: inversionRetrogradeSeries,
                 };
                 
                 currentMatrix = generateMatrix(primeSeries);
@@ -711,7 +711,7 @@
                 renderSeries('primeSeries', primeSeries);
                 renderSeries('inversionSeries', inversionSeries);
                 renderSeries('retrogradeSeries', retrogradeSeries);
-                renderSeries('retrogradeInversionSeries', retrogradeInversionSeries);
+                renderSeries('inversionRetrogradeSeries', inversionRetrogradeSeries);
                 renderMatrix(currentMatrix);
                 
                 const groupSelect = document.getElementById('groupSelect');
@@ -779,5 +779,4 @@
     </script>
 </body>
 </html>
-
 
