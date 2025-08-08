@@ -182,6 +182,18 @@
         .matrix-hover-highlight-col {
             background-color: #e0e7ff;
         }
+
+        /* New classes for persistent selection based on the user's image */
+        .matrix-selected-row,
+        .matrix-selected-col {
+            background-color: #c7d2fe !important; /* Lighter blue for the selected row/column */
+        }
+        .matrix-cell-selected {
+            background-color: #4f46e5 !important; /* Darker blue for the central cell */
+            color: white !important;
+            font-weight: bold;
+        }
+
         .transpose-buttons-container {
             display: flex;
             flex-wrap: wrap;
@@ -554,7 +566,7 @@
         let isPlaying = false; // Simple flag to track playback state
         
         // Tone.js setup
-        // Se ha cambiado el instrumento a un PolySynth con un Tone.Synth para un sonido de piano mejorado.
+        // The instrument has been changed to a PolySynth with a Tone.Synth for a better piano sound.
         const pianoSynth = new Tone.PolySynth(Tone.Synth, {
             oscillator: {
                 type: "triangle"
@@ -581,7 +593,6 @@
 
         /**
          * Converts a numerical note to a frequency string for Tone.js.
-         * The base MIDI note has been changed from C4 (60) to C3 (48) to fit a marimba's range.
          * @param {number} note - The numerical note.
          * @returns {string} The frequency string (e.g., "C3").
          */
@@ -739,7 +750,6 @@
         
         /**
          * Renders the dodecaphonic matrix based on the prime series.
-         * This function has been corrected to ensure the matrix and headers are consistent.
          * @param {number[]} primeSeries - The base prime series (P-0).
          */
         function renderDodecaphonicMatrix(primeSeries) {
@@ -781,7 +791,6 @@
 
                 // Populate the row with notes
                 const pNoteTranspose = (inversion[i] - primeSeries[0] + 12) % 12;
-                const rowTranspose = (inversion[i] + pNoteTranspose + 12) % 12;
                 
                 for (let j = 0; j < 12; j++) {
                     const value = (primeSeries[j] + pNoteTranspose) % 12;
@@ -888,6 +897,7 @@
         
         /**
          * Stops all Tone.js playback and cleans up.
+         * IMPORTANT: This function no longer clears the permanent matrix selection highlight.
          */
         function stopPlaying() {
             if (!isPlaying) {
@@ -907,11 +917,11 @@
             isPlaying = false;
             updatePlaybackButtons();
             
-            // Eliminar todas las iluminaciones de notas
+            // Clear all note highlights from the UI
             document.querySelectorAll('.note-highlight').forEach(el => el.classList.remove('note-highlight'));
-            // Eliminar todas las iluminaciones de grupos
+            // Clear all grouped series highlights
             document.querySelectorAll('.group-highlight').forEach(el => el.classList.remove('group-highlight'));
-            // CORRECCIÓN: Eliminar todas las iluminaciones de la matriz
+            // Clear all temporary matrix hover highlights
             document.querySelectorAll('.matrix-hover-highlight-row').forEach(el => el.classList.remove('matrix-hover-highlight-row'));
             document.querySelectorAll('.matrix-hover-highlight-col').forEach(el => el.classList.remove('matrix-hover-highlight-col'));
 
@@ -1100,7 +1110,7 @@
         
         /**
          * Handles the click event on a matrix cell or header.
-         * Renders the related series in the new section.
+         * Renders the related series in the new section and adds a persistent highlight.
          * @param {Event} event - The click event.
          */
         function handleMatrixClick(event) {
@@ -1113,11 +1123,28 @@
             if (targetCell.tagName !== 'TD' && targetCell.tagName !== 'TH') {
                 return;
             }
+            
+            // Remove previous selection highlight from all cells and headers
+            document.querySelectorAll('.matrix-cell-selected, .matrix-selected-row, .matrix-selected-col').forEach(el => {
+                el.classList.remove('matrix-cell-selected', 'matrix-selected-row', 'matrix-selected-col');
+            });
+
+            // Add the selection highlight to the clicked cell
+            targetCell.classList.add('matrix-cell-selected');
+
+            // Find and highlight the entire row and column
+            const rowIndex = targetCell.dataset.rowIndex;
+            const colIndex = targetCell.dataset.colIndex;
+            
+            if (rowIndex) {
+                document.querySelectorAll(`#matrixTable [data-row-index="${rowIndex}"]`).forEach(el => el.classList.add('matrix-selected-row'));
+            }
+            if (colIndex) {
+                document.querySelectorAll(`#matrixTable [data-col-index="${colIndex}"]`).forEach(el => el.classList.add('matrix-selected-col'));
+            }
 
             stopPlaying();
 
-            let rowIndex = targetCell.dataset.rowIndex;
-            let colIndex = targetCell.dataset.colIndex;
             const form = targetCell.dataset.form;
 
             if (!basePrimeSeries) {
