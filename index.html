@@ -60,6 +60,9 @@
             color: white;
             transition: all 0.2s ease-in-out;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
         .play-button:hover, .stop-button:hover {
             background-color: #3b82f6;
@@ -68,6 +71,7 @@
         .stop-button {
             background-color: #ef4444;
             margin-left: 0.5rem;
+            display: none; /* Initially hidden */
         }
         .stop-button:hover {
             background-color: #dc2626;
@@ -102,31 +106,48 @@
             color: white;
         }
         
-        /* Uso de CSS Grid para una mejor distribución horizontal de los grupos */
+        /* Modifications for segmentation design */
         .grouped-series-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 1rem;
         }
         
         .group-card {
-            background-color: #ffffff;
+            background-color: #f9fafb;
             padding: 1rem;
             border-radius: 0.5rem;
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
             border: 1px solid #e5e7eb;
-            width: 100%; /* Asegura que el elemento ocupe todo el ancho de su columna en el grid */
+            width: 100%;
         }
 
-        .group-display {
+        .grouped-notes-grid {
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        /* Define grid columns for segmentation */
+        .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+        .grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+
+        .group-column {
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
-            list-style: none;
-            padding: 0;
-            margin: 0;
+            justify-content: center;
+            transition: background-color 0.2s ease-in-out;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
         }
-
+        
+        /* Class to highlight the group during playback */
+        .group-highlight {
+            background-color: #e0e7ff; /* Tailwind indigo-100 */
+        }
+        
         .matrix-container {
             overflow-x: auto;
             width: 100%;
@@ -164,7 +185,6 @@
         .transpose-buttons-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.5rem;
             justify-content: center;
             margin-top: 1rem;
         }
@@ -241,22 +261,26 @@
 
         /* Responsive layout for medium screens and up */
         @media (min-width: 768px) {
-            .md\\:flex-col {
+            .md\:flex-col {
                 flex-direction: column;
             }
         }
         
+        /* New styles for matrix headers with labels */
+        .matrix-header-label {
+            font-size: 0.875rem;
+            font-weight: bold;
+            color: #4b5563;
+            line-height: 1;
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
     <div class="flex-grow p-4 md:p-8 overflow-y-auto">
         <div id="appCard" class="max-w-7xl w-full mx-auto">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-center text-gray-900 mb-2 tracking-tight">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-center text-gray-900 mb-6 tracking-tight">
                 Generador Dodecafónico
             </h1>
-            <p class="text-center text-gray-600 mb-6 max-w-2xl mx-auto text-sm md:text-base">
-                Diseñado por Juan Miguel Rios Redondo
-            </p>
 
             <!-- Action buttons container -->
             <div class="action-buttons mb-8">
@@ -299,31 +323,31 @@
                             <div class="series-header mb-2">
                                 <h3 class="text-xl font-semibold text-gray-800">1. Prime (P)</h3>
                                 <div class="flex gap-2">
-                                    <button class="play-button" data-series-type="prime" data-target-id="primeSeries">
+                                    <button class="play-button" data-series-type="prime" data-series-id="primeSeries">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
                                             <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.077-6.13a1.5 1.5 0 000-2.538L6.3 2.84z" />
                                         </svg>
                                     </button>
-                                    <button class="stop-button" data-series-type="prime" data-target-id="primeSeries">
+                                    <button class="stop-button" data-series-type="prime">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
                                             <path fill-rule="evenodd" d="M2.5 5A2.5 2.5 0 015 2.5h10A2.5 2.5 0 0117.5 5v10a2.5 2.5 0 01-2.5 2.5H5A2.5 2.5 0 012.5 15V5z" clip-rule="evenodd" />
                                         </svg>
                                     </button>
                                 </div>
                             </div>
-                            <p class="text-sm text-gray-500 mb-4">Esta es la serie original, una secuencia única de los 12 tonos cromáticos. Sirve como base para todas las demás formas, garantizando que no contiene tríadas tonales.</p>
+                            <p class="text-sm text-gray-500 mb-4">Esta es la serie original, una secuencia única de los 12 tonos cromáticos. Sirve como base para todas las demás formas.</p>
                             <ul id="primeSeries" class="note-display"></ul>
                         </div>
                         <div class="bg-gray-100 p-4 rounded-lg shadow-inner mb-4">
                             <div class="series-header mb-2">
                                 <h3 class="text-xl font-semibold text-gray-800">2. Inversión (I)</h3>
                                 <div class="flex gap-2">
-                                    <button class="play-button" data-series-type="inversion" data-target-id="inversionSeries">
+                                    <button class="play-button" data-series-type="inversion" data-series-id="inversionSeries">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
                                             <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.077-6.13a1.5 1.5 0 000-2.538L6.3 2.84z" />
                                         </svg>
                                     </button>
-                                    <button class="stop-button" data-series-type="inversion" data-target-id="inversionSeries">
+                                    <button class="stop-button" data-series-type="inversion">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
                                             <path fill-rule="evenodd" d="M2.5 5A2.5 2.5 0 015 2.5h10A2.5 2.5 0 0117.5 5v10a2.5 2.5 0 01-2.5 2.5H5A2.5 2.5 0 012.5 15V5z" clip-rule="evenodd" />
                                         </svg>
@@ -337,12 +361,12 @@
                             <div class="series-header mb-2">
                                 <h3 class="text-xl font-semibold text-gray-800">3. Retrógrada (R)</h3>
                                 <div class="flex gap-2">
-                                    <button class="play-button" data-series-type="retrograde" data-target-id="retrogradeSeries">
+                                    <button class="play-button" data-series-type="retrograde" data-series-id="retrogradeSeries">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
                                             <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.077-6.13a1.5 1.5 0 000-2.538L6.3 2.84z" />
                                         </svg>
                                     </button>
-                                    <button class="stop-button" data-series-type="retrograde" data-target-id="retrogradeSeries">
+                                    <button class="stop-button" data-series-type="retrograde">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
                                             <path fill-rule="evenodd" d="M2.5 5A2.5 2.5 0 015 2.5h10A2.5 2.5 0 0117.5 5v10a2.5 2.5 0 01-2.5 2.5H5A2.5 2.5 0 012.5 15V5z" clip-rule="evenodd" />
                                         </svg>
@@ -356,12 +380,12 @@
                             <div class="series-header mb-2">
                                 <h3 class="text-xl font-semibold text-gray-800">4. Inversión Retrógrada (IR)</h3>
                                 <div class="flex gap-2">
-                                    <button class="play-button" data-series-type="inversionRetrograde" data-target-id="inversionRetrogradeSeries">
+                                    <button class="play-button" data-series-type="inversionRetrograde" data-series-id="inversionRetrogradeSeries">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
                                             <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.077-6.13a1.5 1.5 0 000-2.538L6.3 2.84z" />
                                         </svg>
                                     </button>
-                                    <button class="stop-button" data-series-type="inversionRetrograde" data-target-id="inversionRetrogradeSeries">
+                                    <button class="stop-button" data-series-type="inversionRetrograde">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
                                             <path fill-rule="evenodd" d="M2.5 5A2.5 2.5 0 015 2.5h10A2.5 2.5 0 0117.5 5v10a2.5 2.5 0 01-2.5 2.5H5A2.5 2.5 0 012.5 15V5z" clip-rule="evenodd" />
                                         </svg>
@@ -378,7 +402,7 @@
                 <div class="space-y-8">
                     <!-- Playback Controls -->
                     <div class="card flex flex-col sm:flex-row items-center justify-center gap-4 flex-wrap">
-                        <p class="text-gray-700">Instrumento: Synth</p>
+                        <p class="text-gray-700">Instrumento: Piano</p>
                         <div class="flex items-center gap-2">
                             <label for="volumeSlider" class="text-gray-700">Volumen:</label>
                             <input type="range" id="volumeSlider" min="-30" max="0" value="-10" class="w-24">
@@ -438,9 +462,8 @@
                         <div id="groupedSeriesContainer" class="grouped-series-container"></div>
                     </div>
                 </div>
-
             </div>
-            
+
             <!-- Matrix section, spanning the entire width -->
             <div class="card mb-8">
                 <div class="series-header mb-4">
@@ -453,7 +476,7 @@
                     <ul>
                         <li><b>P (Prime):</b> Lee las filas de izquierda a derecha. Los encabezados P están en el lado izquierdo de la matriz.</li>
                         <li><b>I (Inversión):</b> Lee las columnas de arriba abajo. Los encabezados I están en la parte superior de la matriz.</li>
-                        <li><b>R (Retrógrada):</b> Lee las filas de derecha a izquierda.</li>
+                        <li><b>R (Retrógrada):</b> Lee las filas de derecha a izquierda. Los encabezados R están en el lado derecho de la matriz.</li>
                         <li><b>Inversión Retrógrada (IR):</b> Lee las columnas de abajo a arriba. Los encabezados IR están en la parte inferior de la matriz.</li>
                     </ul>
                 </p>
@@ -463,890 +486,967 @@
             </div>
 
             <!-- New section for showing the four series from a matrix click -->
-            <div id="matrixSeriesDisplay" class="card hidden">
+            <div id="matrix-series-display" class="card mb-8 hidden">
                 <h3 class="text-xl font-semibold text-gray-800 mb-4">Formas de la Serie Relacionadas</h3>
-                
-                <div id="selectedSeriesInfoP" class="mb-4 bg-gray-100 p-4 rounded-lg shadow-inner">
-                    <div class="series-header mb-2">
-                        <h4 class="text-lg font-bold text-gray-800" id="seriesTitleP">Prime (P):</h4>
-                        <div class="flex gap-2">
-                            <button class="play-button" data-series-type="P" data-target-id="selectedSeriesNotesP">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-gray-100 p-4 rounded-lg shadow-inner">
+                        <div class="flex items-center justify-between mb-2">
+                             <h4 class="font-bold text-lg">Prime (<span id="matrixPrimeHeader"></span>)</h4>
+                            <button class="play-button" data-series-id="matrixPrimeSeries" data-series-type="matrixPrimeSeries">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
                                     <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.077-6.13a1.5 1.5 0 000-2.538L6.3 2.84z" />
                                 </svg>
                             </button>
-                            <button class="stop-button" data-series-type="P" data-target-id="selectedSeriesNotesP">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-                                    <path fill-rule="evenodd" d="M2.5 5A2.5 2.5 0 015 2.5h10A2.5 2.5 0 0117.5 5v10a2.5 2.5 0 01-2.5 2.5H5A2.5 2.5 0 012.5 15V5z" clip-rule="evenodd" />
-                                </svg>
-                            </button>
                         </div>
+                        <ul id="matrixPrimeSeries" class="note-display"></ul>
                     </div>
-                    <ul id="selectedSeriesNotesP" class="note-display"></ul>
-                </div>
-                
-                <div id="selectedSeriesInfoI" class="mb-4 bg-gray-100 p-4 rounded-lg shadow-inner">
-                    <div class="series-header mb-2">
-                        <h4 class="text-lg font-bold text-gray-800" id="seriesTitleI">Inversión (I):</h4>
-                        <div class="flex gap-2">
-                            <button class="play-button" data-series-type="I" data-target-id="selectedSeriesNotesI">
+                    <div class="bg-gray-100 p-4 rounded-lg shadow-inner">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-bold text-lg">Inversión (<span id="matrixInversionHeader"></span>)</h4>
+                            <button class="play-button" data-series-id="matrixInversionSeries" data-series-type="matrixInversionSeries">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
                                     <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.077-6.13a1.5 1.5 0 000-2.538L6.3 2.84z" />
                                 </svg>
                             </button>
-                            <button class="stop-button" data-series-type="I" data-target-id="selectedSeriesNotesI">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-                                    <path fill-rule="evenodd" d="M2.5 5A2.5 2.5 0 015 2.5h10A2.5 2.5 0 0117.5 5v10a2.5 2.5 0 01-2.5 2.5H5A2.5 2.5 0 012.5 15V5z" clip-rule="evenodd" />
-                                </svg>
-                            </button>
                         </div>
+                        <ul id="matrixInversionSeries" class="note-display"></ul>
                     </div>
-                    <p class="text-sm text-gray-500 mb-4">Se invierten los intervalos de la serie original. Si un intervalo sube, la inversión lo hace bajar en la misma cantidad de semitonos, y viceversa.</p>
-                    <ul id="selectedSeriesNotesI" class="note-display"></ul>
-                </div>
-                
-                <div id="selectedSeriesInfoR" class="mb-4 bg-gray-100 p-4 rounded-lg shadow-inner">
-                    <div class="series-header mb-2">
-                        <h4 class="text-lg font-bold text-gray-800" id="seriesTitleR">Retrógrada (R):</h4>
-                        <div class="flex gap-2">
-                            <button class="play-button" data-series-type="R" data-target-id="selectedSeriesNotesR">
+                    <div class="bg-gray-100 p-4 rounded-lg shadow-inner">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-bold text-lg">Retrógrada (<span id="matrixRetrogradeHeader"></span>)</h4>
+                            <button class="play-button" data-series-id="matrixRetrogradeSeries" data-series-type="matrixRetrogradeSeries">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
                                     <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.077-6.13a1.5 1.5 0 000-2.538L6.3 2.84z" />
                                 </svg>
                             </button>
-                            <button class="stop-button" data-series-type="R" data-target-id="selectedSeriesNotesR">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-                                    <path fill-rule="evenodd" d="M2.5 5A2.5 2.5 0 015 2.5h10A2.5 2.5 0 0117.5 5v10a2.5 2.5 0 01-2.5 2.5H5A2.5 2.5 0 012.5 15V5z" clip-rule="evenodd" />
-                                </svg>
-                            </button>
                         </div>
+                        <ul id="matrixRetrogradeSeries" class="note-display"></ul>
                     </div>
-                    <p class="text-sm text-gray-500 mb-4">Es la serie original leída al revés, comenzando por la última nota y terminando con la primera.</p>
-                    <ul id="selectedSeriesNotesR" class="note-display"></ul>
-                </div>
-
-                <div id="selectedSeriesInfoIR" class="mb-4 bg-gray-100 p-4 rounded-lg shadow-inner">
-                    <div class="series-header mb-2">
-                        <h4 class="text-lg font-bold text-gray-800" id="seriesTitleIR">Inversión Retrógrada (IR):</h4>
-                        <div class="flex gap-2">
-                            <button class="play-button" data-series-type="IR" data-target-id="selectedSeriesNotesIR">
+                    <div class="bg-gray-100 p-4 rounded-lg shadow-inner">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-bold text-lg">Inversión Retrógrada (<span id="matrixInversionRetrogradeHeader"></span>)</h4>
+                            <button class="play-button" data-series-id="matrixInversionRetrogradeSeries" data-series-type="matrixInversionRetrogradeSeries">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
                                     <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.077-6.13a1.5 1.5 0 000-2.538L6.3 2.84z" />
                                 </svg>
                             </button>
-                            <button class="stop-button" data-series-type="IR" data-target-id="selectedSeriesNotesIR">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-                                    <path fill-rule="evenodd" d="M2.5 5A2.5 2.5 0 015 2.5h10A2.5 2.5 0 0117.5 5v10a2.5 2.5 0 01-2.5 2.5H5A2.5 2.5 0 012.5 15V5z" clip-rule="evenodd" />
-                                </svg>
-                            </button>
                         </div>
+                        <ul id="matrixInversionRetrogradeSeries" class="note-display"></ul>
                     </div>
-                    <p class="text-sm text-gray-500 mb-4">Es la inversión de la serie, pero leída al revés.</p>
-                    <ul id="selectedSeriesNotesIR" class="note-display"></ul>
                 </div>
             </div>
         </div>
     </div>
+    
+    <footer class="p-4 bg-gray-200 text-center text-gray-600 text-sm">
+        <p>&copy; 2024 Generador Dodecafónico. Todos los derechos reservados.</p>
+    </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Define the note names of the chromatic scale.
-            const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        // Global state variables for the app.
+        let currentSeriesData = null; 
+        let basePrimeSeries = null; 
+        let savedSeries = {};
+        const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+        let useNoteNames = true;
+        let player = null; // Tone.js player instance
+        let currentTransposeIndex = 0;
+        let isPlaying = false; // Simple flag to track playback state
+        
+        // Tone.js setup
+        // Se ha cambiado el instrumento a un PolySynth con un Tone.Synth para un sonido de piano mejorado.
+        const pianoSynth = new Tone.PolySynth(Tone.Synth, {
+            oscillator: {
+                type: "triangle"
+            },
+            envelope: {
+                attack: 0.02,
+                decay: 0.5,
+                sustain: 0.1,
+                release: 1.2
+            }
+        }).toDestination();
+        Tone.Transport.bpm.value = 120;
+        
+        // --- Helper Functions ---
+        
+        /**
+         * Converts a numerical note (0-11) to its corresponding note name (C, C#, etc.).
+         * @param {number} note - The numerical note.
+         * @returns {string} The note name.
+         */
+        function getNoteName(note) {
+            return noteNames[note];
+        }
 
-            // Tone.js variables and state
-            let synth;
-            let currentSynth;
-            let sequence;
-            let currentSeriesData;
-            let currentMatrix;
-            let selectedMatrixSeries = {};
-            let currentNotation = 'notes';
-            let currentTransposeIndex = 0;
-            let savedSeries = {};
-            
-            // --- TONE.JS SETUP ---
-            const volume = new Tone.Volume(-10).toDestination();
-            
-            synth = new Tone.PolySynth(Tone.Synth, {
-                oscillator: { type: "sine" },
-                envelope: { attack: 0.005, decay: 0.1, sustain: 0.1, release: 1 },
-            }).connect(volume);
-            
-            currentSynth = synth;
+        /**
+         * Converts a numerical note to a frequency string for Tone.js.
+         * The base MIDI note has been changed from C4 (60) to C3 (48) to fit a marimba's range.
+         * @param {number} note - The numerical note.
+         * @returns {string} The frequency string (e.g., "C3").
+         */
+        function getNoteFrequency(note) {
+            return Tone.Frequency(note + 48, "midi").toNote();
+        }
 
-            // --- CORE LOGIC FUNCTIONS ---
+        /**
+         * Generates a random dodecaphonic series.
+         * This function ensures a valid series (12 unique, random notes) is always returned.
+         * @returns {number[]} The random series.
+         */
+        function generateRandomSeries() {
+            const series = Array.from({ length: 12 }, (_, i) => i);
+            // Fisher-Yates shuffle algorithm
+            for (let i = series.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [series[i], series[j]] = [series[j], series[i]];
+            }
+            return series;
+        }
 
-            // Define triad intervals for a quick search.
-            const allTriadIntervals = [
-                [4, 3], [3, 4], [3, 5], [4, 5], [5, 4], [5, 3]
+        /**
+         * Generates the inversion of a given prime series.
+         * @param {number[]} primeSeries - The prime series.
+         * @returns {number[]} The inverted series.
+         */
+        function generateInversion(primeSeries) {
+            const inversion = [];
+            if (!primeSeries || primeSeries.length === 0) return inversion;
+            const firstNote = primeSeries[0];
+            for (let i = 0; i < 12; i++) {
+                const interval = (primeSeries[i] - firstNote + 12) % 12;
+                inversion.push((firstNote - interval + 12) % 12);
+            }
+            return inversion;
+        }
+
+        /**
+         * Generates the retrograde of a given series.
+         * @param {number[]} series - The series to make retrograde.
+         * @returns {number[]} The retrograde series.
+         */
+        function generateRetrograde(series) {
+            if (!series) return [];
+            return [...series].reverse();
+        }
+
+        /**
+         * Generates the retrograde inversion of a given prime series.
+         * @param {number[]} primeSeries - The prime series.
+         * @returns {number[]} The retrograde inversion series.
+         */
+        function generateInversionRetrograde(primeSeries) {
+            return generateRetrograde(generateInversion(primeSeries));
+        }
+
+        /**
+         * Renders a series into a specific list element.
+         * @param {string} elementId - The ID of the <ul> element.
+         * @param {number[]} series - The series to render.
+         */
+        function renderSeries(elementId, series) {
+            const ul = document.getElementById(elementId);
+            if (!ul) {
+                console.error(`Element with ID ${elementId} not found.`);
+                return;
+            }
+            ul.innerHTML = '';
+            series.forEach(note => {
+                const li = document.createElement('li');
+                li.className = 'note-item';
+                li.textContent = useNoteNames ? getNoteName(note) : note;
+                ul.appendChild(li);
+            });
+        }
+
+        /**
+         * Generates the four forms (P, I, R, IR) for a given prime series,
+         * applies transposition, and renders them.
+         * @param {number[]} primeSeries - The base prime series (P-0).
+         * @param {number} transposeIndex - The transposition index.
+         */
+        function generateAndRenderSeries(primeSeries, transposeIndex = 0) {
+            if (!primeSeries || primeSeries.length !== 12) {
+                console.error('Invalid prime series provided for generateAndRenderSeries.');
+                return;
+            }
+            console.log('Generating and rendering series...');
+
+            basePrimeSeries = primeSeries;
+            currentTransposeIndex = transposeIndex;
+
+            const transposedPrime = primeSeries.map(note => (note + transposeIndex) % 12);
+            const invertedSeries = generateInversion(transposedPrime);
+            const retrogradeSeries = generateRetrograde(transposedPrime);
+            const inversionRetrogradeSeries = generateInversionRetrograde(transposedPrime);
+
+            currentSeriesData = {
+                prime: transposedPrime,
+                inversion: invertedSeries,
+                retrograde: retrogradeSeries,
+                inversionRetrograde: inversionRetrogradeSeries
+            };
+            
+            renderSeries('primeSeries', currentSeriesData.prime);
+            renderSeries('inversionSeries', currentSeriesData.inversion);
+            renderSeries('retrogradeSeries', currentSeriesData.retrograde);
+            renderSeries('inversionRetrogradeSeries', currentSeriesData.inversionRetrograde);
+            
+            renderDodecaphonicMatrix(basePrimeSeries);
+            const groupSelect = document.getElementById('groupSelect');
+            if (groupSelect) {
+                renderGroupedSeries(parseInt(groupSelect.value));
+            }
+        }
+
+        /**
+         * Creates and renders the custom input fields for a user-defined series.
+         */
+        function renderCustomInputFields() {
+            const container = document.querySelector('.custom-series-input-container');
+            if (!container) return;
+            container.innerHTML = '';
+            for (let i = 0; i < 12; i++) {
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.min = 0;
+                input.max = 11;
+                input.className = 'custom-series-input';
+                input.id = `custom-input-${i}`;
+                input.placeholder = i + 1;
+                container.appendChild(input);
+            }
+        }
+
+        /**
+         * Generates and renders the transposition buttons (P-0 to P-11).
+         */
+        function renderTransposeButtons() {
+            const container = document.getElementById('transposeButtonsContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            for (let i = 0; i < 12; i++) {
+                const button = document.createElement('button');
+                button.className = 'transpose-button';
+                button.dataset.transposeIndex = i;
+                button.textContent = `P-${i}`;
+                if (i === currentTransposeIndex) {
+                    button.classList.add('active');
+                }
+                container.appendChild(button);
+            }
+        }
+        
+        /**
+         * Renders the dodecaphonic matrix based on the prime series.
+         * This function has been corrected to ensure the matrix and headers are consistent.
+         * @param {number[]} primeSeries - The base prime series (P-0).
+         */
+        function renderDodecaphonicMatrix(primeSeries) {
+            const table = document.getElementById('matrixTable');
+            if (!table) return;
+            table.innerHTML = '';
+            
+            if (!primeSeries || primeSeries.length !== 12) {
+                console.error("Invalid prime series for rendering the matrix.");
+                return;
+            }
+
+            const inversion = generateInversion(primeSeries);
+
+            // Create the header row (I labels)
+            const thead = table.createTHead();
+            let headerRow = thead.insertRow();
+            headerRow.insertCell().innerHTML = '<div class="matrix-header-label">P</div>'; // Corner cell
+            for (let i = 0; i < 12; i++) {
+                let th = document.createElement('th');
+                th.innerHTML = `<div class="matrix-header-label">I${i}</div>`;
+                th.className = 'matrix-header-col';
+                th.dataset.colIndex = i;
+                th.dataset.form = 'inversion';
+                headerRow.appendChild(th);
+            }
+            headerRow.insertCell().innerHTML = '<div class="matrix-header-label">R</div>'; // Right header corner
+
+            // Create the body rows
+            const tbody = table.createTBody();
+            for (let i = 0; i < 12; i++) {
+                const tr = tbody.insertRow();
+                let thLeft = document.createElement('th');
+                thLeft.innerHTML = `<div class="matrix-header-label">P${i}</div>`;
+                thLeft.className = 'matrix-header-row';
+                thLeft.dataset.rowIndex = i;
+                thLeft.dataset.form = 'prime';
+                tr.appendChild(thLeft);
+
+                // Populate the row with notes
+                const pNoteTranspose = (inversion[i] - primeSeries[0] + 12) % 12;
+                const rowTranspose = (inversion[i] + pNoteTranspose + 12) % 12;
+                
+                for (let j = 0; j < 12; j++) {
+                    const value = (primeSeries[j] + pNoteTranspose) % 12;
+                    let td = tr.insertCell();
+                    td.textContent = useNoteNames ? getNoteName(value) : value;
+                    td.dataset.rowIndex = i;
+                    td.dataset.colIndex = j;
+                }
+                
+                let thRight = document.createElement('th');
+                thRight.innerHTML = `<div class="matrix-header-label">R${i}</div>`;
+                thRight.className = 'matrix-header-row';
+                thRight.dataset.rowIndex = i;
+                thRight.dataset.form = 'retrograde';
+                tr.appendChild(thRight);
+            }
+
+            // Create the footer row (IR labels)
+            const tfoot = table.createTFoot();
+            let footerRow = tfoot.insertRow();
+            footerRow.insertCell().innerHTML = '<div class="matrix-header-label">IR</div>';
+            for (let i = 0; i < 12; i++) {
+                let th = document.createElement('th');
+                th.innerHTML = `<div class="matrix-header-label">IR${i}</div>`;
+                th.className = 'matrix-header-col';
+                th.dataset.colIndex = i;
+                th.dataset.form = 'inversionRetrograde';
+                footerRow.appendChild(th);
+            }
+            footerRow.insertCell().textContent = '';
+        }
+        
+        /**
+         * Renders the grouped series visualization based on the user's selection.
+         * @param {number} groupSize - The number of notes per group.
+         */
+        function renderGroupedSeries(groupSize) {
+            const container = document.getElementById('groupedSeriesContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            if (!currentSeriesData || !currentSeriesData.prime || currentSeriesData.prime.length !== 12) return;
+            
+            const pSeries = currentSeriesData.prime;
+            const iSeries = currentSeriesData.inversion;
+            const rSeries = currentSeriesData.retrograde;
+            const irSeries = currentSeriesData.inversionRetrograde;
+
+            // An array of series data with unique identifiers for correct element selection
+            const seriesGroups = [
+                { title: 'Prime (P)', series: pSeries, id: 'grouped-prime', type: 'prime' },
+                { title: 'Inversión (I)', series: iSeries, id: 'grouped-inversion', type: 'inversion' },
+                { title: 'Retrógrada (R)', series: rSeries, id: 'grouped-retrograde', type: 'retrograde' },
+                { title: 'Inversión Retrógrada (IR)', series: irSeries, id: 'grouped-inversion-retrograde', type: 'inversionRetrograde' }
             ];
-            
-            // Function to check if the last three notes of a series form a triad.
-            const checkForTriads = (series) => {
-                if (series.length < 3) return false;
-                const n1 = noteNames.indexOf(series[series.length - 3]);
-                const n2 = noteNames.indexOf(series[series.length - 2]);
-                const n3 = noteNames.indexOf(series[series.length - 1]);
-                const interval1 = (n2 - n1 + 12) % 12;
-                const interval2 = (n3 - n2 + 12) % 12;
-                for (const triad of allTriadIntervals) {
-                    if (interval1 === triad[0] && interval2 === triad[1]) return true;
-                }
-                return false;
-            };
 
-            // Function to generate a random 12-tone series without triads.
-            const generateRandomSeries = () => {
-                const availableNotes = [...noteNames];
-                const series = [];
-                const firstNoteIndex = Math.floor(Math.random() * availableNotes.length);
-                series.push(availableNotes.splice(firstNoteIndex, 1)[0]);
-
-                while (series.length < 12) {
-                    if (availableNotes.length === 0) return generateRandomSeries();
-                    const randomIndex = Math.floor(Math.random() * availableNotes.length);
-                    const newNote = availableNotes[randomIndex];
-                    const tentativeSeries = [...series, newNote];
-
-                    if (!checkForTriads(tentativeSeries)) {
-                        series.push(newNote);
-                        availableNotes.splice(randomIndex, 1);
-                    } else {
-                        availableNotes.splice(randomIndex, 1);
-                    }
-                }
-                return series;
-            };
-            
-            // Function to validate custom input
-            const validateCustomSeries = (inputs) => {
-                const numbers = inputs.map(input => parseInt(input.value));
-                const errorText = document.getElementById('customInputError');
+            seriesGroups.forEach(groupInfo => {
+                const card = document.createElement('div');
+                card.className = 'group-card';
                 
-                // Check if all are numbers and unique and within range
-                const uniqueNumbers = new Set(numbers);
-                if (uniqueNumbers.size !== 12 || numbers.some(isNaN) || numbers.some(n => n < 0 || n > 11)) {
-                    errorText.classList.remove('hidden');
-                    return null;
-                }
-                errorText.classList.add('hidden');
+                const header = document.createElement('div');
+                header.className = 'group-card-header';
+                const h4 = document.createElement('h4');
+                h4.className = 'font-bold text-base text-gray-800';
+                h4.textContent = groupInfo.title;
+                header.appendChild(h4);
+
+                const playButton = document.createElement('button');
+                playButton.className = 'play-button play-group-button';
+                playButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.077-6.13a1.5 1.5 0 000-2.538L6.3 2.84z" /></svg>`;
+                // Agregamos data-series-id para que el selector de eventos sea más robusto
+                playButton.dataset.seriesId = groupInfo.id;
+                playButton.dataset.seriesType = groupInfo.type;
+                playButton.dataset.groupSize = groupSize;
+                header.appendChild(playButton);
                 
-                // Convert numbers to note names
-                return numbers.map(n => noteNames[n]);
-            };
+                card.appendChild(header);
 
-            // Function to transpose a series
-            const transposeSeries = (series, semitones) => {
-                return series.map(note => {
-                    const originalIndex = noteNames.indexOf(note);
-                    const newIndex = (originalIndex + semitones + 12) % 12;
-                    return noteNames[newIndex];
-                });
-            };
-
-            // Function to get the inversion of the series.
-            const getInversion = (prime) => {
-                const inversion = [];
-                inversion.push(prime[0]);
-                for (let i = 1; i < prime.length; i++) {
-                    const currentNoteIndex = noteNames.indexOf(prime[i]);
-                    const prevNoteIndex = noteNames.indexOf(prime[i - 1]);
-                    const interval = currentNoteIndex - prevNoteIndex;
-                    const lastInversionNoteIndex = noteNames.indexOf(inversion[i - 1]);
-                    let newNoteIndex = (lastInversionNoteIndex - interval + 12) % 12;
-                    inversion.push(noteNames[newNoteIndex]);
-                }
-                return inversion;
-            };
-
-            // Function to get the retrograde series.
-            const getRetrograde = (series) => [...series].reverse();
-
-            // Function to get the inversion retrograde.
-            const getInversionRetrograde = (series) => getInversion(series).reverse();
-
-            // Function to render a series on the page, with notation toggle.
-            const renderSeriesWithNotation = (elementId, series, notationType) => {
-                const ul = document.getElementById(elementId);
-                if (!ul) return;
-                ul.innerHTML = '';
-                series.forEach(note => {
-                    const li = document.createElement('li');
-                    li.textContent = (notationType === 'numbers') ? noteNames.indexOf(note) : note;
-                    li.className = 'note-item';
-                    ul.appendChild(li);
-                });
-            };
-
-            // Function to generate the dodecaphonic matrix.
-            const generateMatrix = (prime) => {
-                const matrix = [];
-                const inversion = getInversion(prime);
-                matrix.push(prime);
-                for (let i = 1; i < 12; i++) {
-                    const newRow = [];
-                    const firstNoteOfRow = inversion[i];
-                    newRow.push(firstNoteOfRow);
-                    for (let j = 1; j < 12; j++) {
-                        const originalInterval = (noteNames.indexOf(prime[j]) - noteNames.indexOf(prime[0]) + 12) % 12;
-                        const newNoteIndex = (noteNames.indexOf(firstNoteOfRow) + originalInterval) % 12;
-                        newRow.push(noteNames[newNoteIndex]);
-                    }
-                    matrix.push(newRow);
-                }
-                return matrix;
-            };
-
-            // Function to render the matrix on the page with click events
-            const renderMatrix = (matrix, notationType) => {
-                const table = document.getElementById('matrixTable');
-                if (!table) return;
-                table.innerHTML = '';
+                const groupsContainer = document.createElement('div');
+                groupsContainer.className = `grouped-notes-grid grid-cols-${12/groupSize}`;
+                groupsContainer.id = groupInfo.id;
                 
-                // Table header with I headers
-                const thead = document.createElement('thead');
-                const headerRow = document.createElement('tr');
-                headerRow.innerHTML = '<th></th>'; // Empty cell for the corner
-                const inversionSeries = getInversion(currentSeriesData.prime);
-                inversionSeries.forEach((note, index) => {
-                    const th = document.createElement('th');
-                    th.textContent = (notationType === 'numbers') ? `I${index}` : `I${index}`; // Headers are always the same
-                    th.setAttribute('data-type', 'I');
-                    th.setAttribute('data-index', index);
-                    headerRow.appendChild(th);
-                });
-                thead.appendChild(headerRow);
-                table.appendChild(thead);
-
-                // Table body
-                const tbody = document.createElement('tbody');
-                matrix.forEach((row, rowIndex) => {
-                    const tr = document.createElement('tr');
+                for (let i = 0; i < groupInfo.series.length; i += groupSize) {
+                    const group = groupInfo.series.slice(i, i + groupSize);
+                    const groupColumn = document.createElement('div');
+                    groupColumn.className = 'group-column';
+                    groupColumn.dataset.groupIndex = i / groupSize;
                     
-                    const rowHeaderP = document.createElement('th');
-                    rowHeaderP.textContent = `P${rowIndex}`;
-                    rowHeaderP.setAttribute('data-type', 'P');
-                    rowHeaderP.setAttribute('data-index', rowIndex);
-                    tr.appendChild(rowHeaderP);
-                    
-                    row.forEach((note, colIndex) => {
-                        const td = document.createElement('td');
-                        td.textContent = (notationType === 'numbers') ? noteNames.indexOf(note) : note;
-                        td.setAttribute('data-row', rowIndex);
-                        td.setAttribute('data-col', colIndex);
-                        tr.appendChild(td);
-                    });
-                    
-                    const rowHeaderR = document.createElement('th');
-                    rowHeaderR.textContent = `R${rowIndex}`;
-                    rowHeaderR.setAttribute('data-type', 'R');
-                    rowHeaderR.setAttribute('data-index', rowIndex);
-                    tr.appendChild(rowHeaderR);
-                    
-                    tbody.appendChild(tr);
-                });
-                
-                table.appendChild(tbody);
-                
-                // IR headers row at the bottom
-                const tfoot = document.createElement('tfoot');
-                const footerRow = document.createElement('tr');
-                footerRow.innerHTML = '<th></th>';
-                matrix[0].forEach((note, index) => {
-                    const th = document.createElement('th');
-                    th.textContent = `IR${index}`;
-                    th.setAttribute('data-type', 'IR');
-                    th.setAttribute('data-index', index);
-                    footerRow.appendChild(th);
-                });
-                footerRow.innerHTML += '<th></th>';
-                tfoot.appendChild(footerRow);
-                table.appendChild(tfoot);
-            };
-
-            // Function to render the grouped series with play/stop buttons
-            const renderGroupedSeries = (series, groupSize, notationType) => {
-                const container = document.getElementById('groupedSeriesContainer');
-                if (!container) return;
-                container.innerHTML = '';
-                
-                let groupNumber = 1;
-                for (let i = 0; i < series.length; i += groupSize) {
-                    const group = series.slice(i, i + groupSize);
-                    
-                    // Contenedor para cada grupo, lo que permite que se coloquen uno al lado del otro
-                    const groupDiv = document.createElement('div');
-                    groupDiv.className = 'group-card';
-
-                    const groupHeader = document.createElement('div');
-                    groupHeader.className = 'group-card-header';
-                    
-                    const groupTitle = document.createElement('h4');
-                    groupTitle.className = 'font-semibold text-gray-800';
-                    groupTitle.textContent = `Grupo ${groupNumber}`;
-
-                    const playStopContainer = document.createElement('div');
-                    playStopContainer.className = 'flex gap-2';
-
-                    const playButton = document.createElement('button');
-                    playButton.className = 'play-button';
-                    playButton.setAttribute('data-group-index', i);
-                    playButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-                                                <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.077-6.13a1.5 1.5 0 000-2.538L6.3 2.84z" />
-                                            </svg>`;
-
-                    const stopButton = document.createElement('button');
-                    stopButton.className = 'stop-button';
-                    stopButton.setAttribute('data-group-index', i);
-                    stopButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-                                                <path fill-rule="evenodd" d="M2.5 5A2.5 2.5 0 015 2.5h10A2.5 2.5 0 0117.5 5v10a2.5 2.5 0 01-2.5 2.5H5A2.5 2.5 0 012.5 15V5z" clip-rule="evenodd" />
-                                            </svg>`;
-
-                    playStopContainer.appendChild(playButton);
-                    playStopContainer.appendChild(stopButton);
-                    groupHeader.appendChild(groupTitle);
-                    groupHeader.appendChild(playStopContainer);
-                    
-                    const groupList = document.createElement('ul');
-                    groupList.className = 'group-display';
-                    groupList.setAttribute('id', `groupSeries-${i}`);
-
                     group.forEach(note => {
                         const li = document.createElement('li');
-                        li.textContent = (notationType === 'numbers') ? noteNames.indexOf(note) : note;
                         li.className = 'note-item';
-                        groupList.appendChild(li);
+                        li.textContent = useNoteNames ? getNoteName(note) : note;
+                        groupColumn.appendChild(li);
                     });
-                    
-                    groupDiv.appendChild(groupHeader);
-                    groupDiv.appendChild(groupList);
-                    container.appendChild(groupDiv);
-                    groupNumber++;
+                    groupsContainer.appendChild(groupColumn);
                 }
-            };
-
-            // Function to generate and render custom series input fields
-            const renderCustomInputFields = () => {
-                const container = document.querySelector('.custom-series-input-container');
-                container.innerHTML = '';
-                for (let i = 0; i < 12; i++) {
-                    const input = document.createElement('input');
-                    input.type = 'number';
-                    input.min = 0;
-                    input.max = 11;
-                    input.className = 'custom-series-input';
-                    input.placeholder = noteNames.indexOf(currentSeriesData?.prime?.[i]) !== -1 ? noteNames.indexOf(currentSeriesData.prime[i]) : i;
-                    input.value = noteNames.indexOf(currentSeriesData?.prime?.[i]) !== -1 ? noteNames.indexOf(currentSeriesData.prime[i]) : '';
-                    input.setAttribute('aria-label', `Nota ${i + 1}`);
-                    container.appendChild(input);
-                }
-            };
-
-            // Function to render transpose buttons
-            const renderTransposeButtons = () => {
-                const container = document.getElementById('transposeButtonsContainer');
-                container.innerHTML = '';
-                for (let i = 0; i < 12; i++) {
-                    const button = document.createElement('button');
-                    button.textContent = `P-${i}`;
-                    button.className = `transpose-button ${i === currentTransposeIndex ? 'active' : ''}`;
-                    button.setAttribute('data-transpose-index', i);
-                    container.appendChild(button);
-                }
-            };
-            
-            // Function to clear all note highlights
-            const clearNoteHighlights = (elementId) => {
-                const ul = document.getElementById(elementId);
-                if(ul) {
-                    ul.querySelectorAll('.note-highlight').forEach(el => el.classList.remove('note-highlight'));
-                }
-            };
-            
-            // Function to stop Tone.js playback
-            const stopAllPlayback = () => {
-                if (sequence) {
-                    Tone.Transport.stop();
-                    sequence.stop();
-                    sequence.dispose();
-                    sequence = null;
-                }
-                clearNoteHighlights('primeSeries');
-                clearNoteHighlights('inversionSeries');
-                clearNoteHighlights('retrogradeSeries');
-                clearNoteHighlights('inversionRetrogradeSeries');
-                clearNoteHighlights('selectedSeriesNotesP');
-                clearNoteHighlights('selectedSeriesNotesI');
-                clearNoteHighlights('selectedSeriesNotesR');
-                clearNoteHighlights('selectedSeriesNotesIR');
-                document.querySelectorAll('#groupedSeriesContainer .note-item').forEach(el => el.classList.remove('note-highlight'));
-            };
-
-            // Function to play a series MELODICALLY using Tone.js and highlight notes
-            const playMelodicSeries = (series, targetUlId) => {
-                stopAllPlayback();
-                if (Tone.context.state !== 'running') Tone.start();
                 
+                card.appendChild(groupsContainer);
+                container.appendChild(card);
+            });
+        }
+        
+        // --- Playback Functions ---
+        
+        /**
+         * Stops all Tone.js playback and cleans up.
+         */
+        function stopPlaying() {
+            if (!isPlaying) {
+                return; // Already stopped
+            }
+            console.log('Stopping playback.');
+
+            try {
+                if (Tone.Transport.state === 'started') {
+                    Tone.Transport.stop();
+                    Tone.Transport.cancel();
+                }
+            } catch (e) {
+                console.error("Error stopping Tone.js:", e);
+            }
+
+            isPlaying = false;
+            updatePlaybackButtons();
+            
+            // Eliminar todas las iluminaciones de notas
+            document.querySelectorAll('.note-highlight').forEach(el => el.classList.remove('note-highlight'));
+            // Eliminar todas las iluminaciones de grupos
+            document.querySelectorAll('.group-highlight').forEach(el => el.classList.remove('group-highlight'));
+            // CORRECCIÓN: Eliminar todas las iluminaciones de la matriz
+            document.querySelectorAll('.matrix-hover-highlight-row').forEach(el => el.classList.remove('matrix-hover-highlight-row'));
+            document.querySelectorAll('.matrix-hover-highlight-col').forEach(el => el.classList.remove('matrix-hover-highlight-col'));
+
+            console.log('Playback stopped and UI reset.');
+        }
+
+        /**
+         * Plays a series of notes sequentially using Tone.js.
+         * @param {number[]} series - The series to play.
+         * @param {string} elementId - The ID of the <ul> element containing the notes to highlight.
+         */
+        async function playSeries(series, elementId) {
+            stopPlaying(); // Stop any existing playback
+            isPlaying = true;
+            updatePlaybackButtons();
+
+            if (!series || series.length !== 12) {
+                console.error('Invalid series provided for playback.');
+                stopPlaying();
+                return;
+            }
+
+            try {
+                // Ensure audio context is started before playing.
+                await Tone.start();
+                const noteElements = document.getElementById(elementId).children;
+                const noteFrequencies = series.map(note => getNoteFrequency(note));
                 const rhythm = document.getElementById('rhythmSelect').value;
-                const notesWithOctave = series.slice(0, 12).map(note => note + '4');
-                const noteElements = document.getElementById(targetUlId)?.querySelectorAll('.note-item');
-                
-                sequence = new Tone.Sequence((time, noteIndex) => {
-                    if (noteIndex < notesWithOctave.length) {
-                        const note = notesWithOctave[noteIndex];
-                        currentSynth.triggerAttackRelease(note, rhythm, time);
-                        
-                        clearNoteHighlights(targetUlId);
-                        
-                        if (noteElements) {
-                            noteElements[noteIndex].classList.add('note-highlight');
-                        }
+
+                const sequence = new Tone.Sequence((time, noteIndex) => {
+                    pianoSynth.triggerAttackRelease(noteFrequencies[noteIndex], "8n", time);
+                    
+                    // Highlight notes
+                    const currentNoteElement = noteElements[noteIndex];
+                    if (currentNoteElement) {
+                        currentNoteElement.classList.add('note-highlight');
+                        Tone.Draw.schedule(() => {
+                             currentNoteElement.classList.remove('note-highlight');
+                        }, time + Tone.Time(rhythm).toSeconds());
                     }
-                }, notesWithOctave.map((_, i) => i), rhythm);
-                
-                sequence.loop = false;
-                sequence.onstop = () => {
-                    Tone.Transport.stop();
-                    setTimeout(() => {
-                        clearNoteHighlights(targetUlId);
-                    }, 500);
-                };
+                }, noteFrequencies.map((_, i) => i), rhythm); // Sequence based on note indices
                 
                 sequence.start(0);
                 Tone.Transport.start();
-            };
-
-            // Function to play a series HARMONICALLY (for grouped series)
-            const playHarmonicSeries = (group, targetUlId) => {
-                stopAllPlayback();
-                if (Tone.context.state !== 'running') Tone.start();
-
-                const notesWithOctave = group.map(note => note + '4');
-                const noteElements = document.getElementById(targetUlId)?.querySelectorAll('.note-item');
+                console.log('Series playback started.');
                 
-                sequence = new Tone.Part((time) => {
-                    currentSynth.triggerAttackRelease(notesWithOctave, "4n", time);
-                    clearNoteHighlights(targetUlId);
-                    if (noteElements) {
-                        noteElements.forEach(el => el.classList.add('note-highlight'));
-                    }
-                }, [[0, "start"]]);
-                
-                sequence.loop = false;
-                sequence.onstop = () => {
-                    Tone.Transport.stop();
-                    setTimeout(() => {
-                        clearNoteHighlights(targetUlId);
-                    }, 500);
-                };
-                
-                sequence.start(0);
-                Tone.Transport.start();
-            };
+                // Stop playback after the sequence is done
+                Tone.Transport.scheduleOnce(() => {
+                    stopPlaying();
+                }, `+${Tone.Time(rhythm).toSeconds() * series.length}`);
 
-            // Function to get a series from the matrix
-            const getSeriesFromMatrix = (matrix, type, index) => {
-                if (!matrix || matrix.length === 0 || index === undefined || index < 0 || index >= matrix.length) {
-                    return [];
-                }
-                if (type === 'P') {
-                    return matrix[index];
-                } else if (type === 'I') {
-                    return matrix.map(row => row[index]);
-                } else if (type === 'R') {
-                    return getRetrograde(matrix[index]);
-                } else if (type === 'IR') {
-                    return getRetrograde(matrix.map(row => row[index]));
-                }
-                return [];
-            };
-
-            // Function to handle the selection in the matrix (UPDATED)
-            const handleMatrixClick = (event) => {
-                const element = event.target.closest('td, th');
-                if (!element || !currentMatrix) return;
+            } catch (error) {
+                console.error("Error during sequential series playback:", error);
+                stopPlaying();
+            }
+        }
+        
+        /**
+         * Plays a grouped series as simultaneous chords with highlights and pauses.
+         * @param {number[]} series - The series to play.
+         * @param {number} groupSize - The size of the groups.
+         * @param {string} seriesType - The type of series being played (e.g., 'prime').
+         * @param {string} containerId - The ID of the container with the grouped notes.
+         */
+        async function playGroupedSeries(series, groupSize, containerId) {
+            stopPlaying(); // Stop any existing playback
+            isPlaying = true;
+            updatePlaybackButtons();
+            
+            if (!series || series.length !== 12) {
+                console.error('Invalid series provided for grouped playback.');
+                stopPlaying();
+                return;
+            }
+            
+            try {
+                // Ensure audio context is started before playing.
+                await Tone.start();
                 
-                let rowIndex, colIndex;
-                const tagName = element.tagName;
-                
-                if (tagName === 'TD') {
-                    rowIndex = parseInt(element.dataset.row);
-                    colIndex = parseInt(element.dataset.col);
-                } else if (tagName === 'TH') {
-                    const type = element.dataset.type;
-                    const index = parseInt(element.dataset.index);
-
-                    if (type === 'P' || type === 'R') {
-                        rowIndex = index;
-                        colIndex = (type === 'P') ? 0 : 11;
-                    } else if (type === 'I' || type === 'IR') {
-                        rowIndex = (type === 'I') ? 0 : 11;
-                        colIndex = index;
-                    }
-                } else {
+                const groupColumns = document.querySelectorAll(`#${containerId} .group-column`);
+                if (groupColumns.length === 0) {
+                    console.error(`Grouped container with id "${containerId}" not found.`);
+                    stopPlaying();
                     return;
                 }
 
-                if (isNaN(rowIndex) || isNaN(colIndex)) return;
+                const rhythm = document.getElementById('rhythmSelect').value;
+                const interval = Tone.Time(rhythm).toSeconds() * 1.5;
                 
-                clearMatrixHighlights();
+                let currentGroupIndex = 0;
                 
-                // Highlight selected cell, row and column
-                const selectedCell = document.querySelector(`#matrixTable tbody tr:nth-child(${rowIndex + 1}) td:nth-child(${colIndex + 2})`);
-                if (selectedCell) selectedCell.classList.add('matrix-cell-highlight');
+                const groupLoop = new Tone.Loop(time => {
+                    if (currentGroupIndex >= groupColumns.length) {
+                        stopPlaying();
+                        return;
+                    }
+                    
+                    // Highlight current group and remove highlight from previous
+                    if (currentGroupIndex > 0) {
+                        groupColumns[currentGroupIndex - 1]?.classList.remove('group-highlight');
+                    }
+                    groupColumns[currentGroupIndex]?.classList.add('group-highlight');
+
+                    const group = series.slice(currentGroupIndex * groupSize, (currentGroupIndex + 1) * groupSize);
+                    const chordFrequencies = group.map(note => getNoteFrequency(note));
+                    pianoSynth.triggerAttackRelease(chordFrequencies, rhythm, time);
+                    
+                    currentGroupIndex++;
+                }, interval);
                 
-                const selectedRow = document.querySelector(`#matrixTable tbody tr:nth-child(${rowIndex + 1})`);
-                if (selectedRow) {
-                    selectedRow.querySelectorAll('td').forEach(td => td.classList.add('matrix-cell-highlight'));
-                    selectedRow.querySelector(`th[data-type="P"]`).classList.add('matrix-header-highlight');
-                    selectedRow.querySelector(`th[data-type="R"]`).classList.add('matrix-header-highlight');
-                }
+                groupLoop.start(0);
+                Tone.Transport.start();
+                console.log('Grouped playback started successfully.');
+                
+                // Stop playback after all groups are played
+                Tone.Transport.scheduleOnce(() => {
+                    stopPlaying();
+                }, `+${interval * groupColumns.length}`);
+                
+            } catch (error) {
+                console.error("Error during grouped series playback:", error);
+                stopPlaying();
+            }
+        }
 
-                const selectedColHeaderI = document.querySelector(`#matrixTable thead tr th[data-type="I"][data-index="${colIndex}"]`);
-                if (selectedColHeaderI) selectedColHeaderI.classList.add('matrix-header-highlight');
+        /**
+         * Updates the visibility of play and stop buttons based on playback state.
+         */
+        function updatePlaybackButtons() {
+            const playButtons = document.querySelectorAll('.play-button');
+            const stopButtons = document.querySelectorAll('.stop-button');
 
-                const selectedColHeaderIR = document.querySelector(`#matrixTable tfoot tr th[data-type="IR"][data-index="${colIndex}"]`);
-                if (selectedColHeaderIR) selectedColHeaderIR.classList.add('matrix-header-highlight');
+            if (isPlaying) {
+                playButtons.forEach(btn => btn.style.display = 'none');
+                stopButtons.forEach(btn => btn.style.display = 'inline-flex');
+            } else {
+                playButtons.forEach(btn => btn.style.display = 'inline-flex');
+                stopButtons.forEach(btn => btn.style.display = 'none');
+            }
+        }
 
-                document.querySelectorAll(`#matrixTable tbody tr`).forEach(row => {
-                    const colCell = row.querySelector(`td:nth-child(${colIndex + 2})`);
-                    if (colCell) colCell.classList.add('matrix-cell-highlight');
+
+        // --- Save/Load Functions ---
+        
+        /**
+         * Loads saved series from local storage and renders the list.
+         */
+        function loadSavedSeriesFromLocalStorage() {
+            const savedSeriesJSON = localStorage.getItem('dodecaphonicSavedSeries');
+            savedSeries = savedSeriesJSON ? JSON.parse(savedSeriesJSON) : {};
+            renderSavedSeriesList();
+        }
+
+        /**
+         * Renders the list of saved series.
+         */
+        function renderSavedSeriesList() {
+            const list = document.getElementById('savedSeriesList');
+            if (!list) return;
+            list.innerHTML = '';
+            for (const name in savedSeries) {
+                const li = document.createElement('li');
+                li.className = 'saved-series-item';
+                
+                const span = document.createElement('span');
+                span.textContent = name;
+                span.dataset.seriesName = name;
+                
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Eliminar';
+                deleteButton.dataset.seriesName = name;
+                deleteButton.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    delete savedSeries[event.target.dataset.seriesName];
+                    localStorage.setItem('dodecaphonicSavedSeries', JSON.stringify(savedSeries));
+                    renderSavedSeriesList();
                 });
-
-                // Get the series from the matrix for the clicked cell or header
-                selectedMatrixSeries = {
-                    P: getSeriesFromMatrix(currentMatrix, 'P', rowIndex),
-                    I: getSeriesFromMatrix(currentMatrix, 'I', colIndex),
-                    R: getSeriesFromMatrix(currentMatrix, 'R', rowIndex),
-                    IR: getSeriesFromMatrix(currentMatrix, 'IR', colIndex)
-                };
-
-                // Set dynamic titles
-                document.getElementById('seriesTitleP').textContent = `Prime (P${rowIndex}):`;
-                document.getElementById('seriesTitleI').textContent = `Inversión (I${colIndex}):`;
-                document.getElementById('seriesTitleR').textContent = `Retrógrada (R${rowIndex}):`;
-                document.getElementById('seriesTitleIR').textContent = `Inversión Retrógrada (IR${colIndex}):`;
-
-                // Render the series in the panel
-                renderSeriesWithNotation('selectedSeriesNotesP', selectedMatrixSeries.P, currentNotation);
-                renderSeriesWithNotation('selectedSeriesNotesI', selectedMatrixSeries.I, currentNotation);
-                renderSeriesWithNotation('selectedSeriesNotesR', selectedMatrixSeries.R, currentNotation);
-                renderSeriesWithNotation('selectedSeriesNotesIR', selectedMatrixSeries.IR, currentNotation);
                 
-                document.getElementById('matrixSeriesDisplay').classList.remove('hidden');
-            };
+                li.appendChild(span);
+                li.appendChild(deleteButton);
+                list.appendChild(li);
+            }
+        }
+        
+        // --- Event Handlers ---
+        
+        /**
+         * Handles the click event on a matrix cell or header.
+         * Renders the related series in the new section.
+         * @param {Event} event - The click event.
+         */
+        function handleMatrixClick(event) {
+            const cell = event.target;
+            let targetCell = cell;
+            if (cell.tagName === 'DIV') {
+                targetCell = cell.parentElement;
+            }
 
-            const handleMatrixMouseOver = (event) => {
-                const element = event.target.closest('td, th');
-                if (!element) return;
-                const tagName = element.tagName;
-                if(tagName === 'TH' && element.dataset.type === 'P') {
-                    const rowIndex = parseInt(element.dataset.index);
-                    const row = document.querySelector(`#matrixTable tbody tr:nth-child(${rowIndex + 1})`);
-                    if(row) row.querySelectorAll('td').forEach(td => td.classList.add('matrix-hover-highlight-row'));
-                } else if (tagName === 'TH' && element.dataset.type === 'I') {
-                    const colIndex = parseInt(element.dataset.index);
-                    document.querySelectorAll(`#matrixTable tbody tr`).forEach(row => {
-                        const colCell = row.querySelector(`td:nth-child(${colIndex + 2})`);
-                        if (colCell) colCell.classList.add('matrix-hover-highlight-col');
+            if (targetCell.tagName !== 'TD' && targetCell.tagName !== 'TH') {
+                return;
+            }
+
+            stopPlaying();
+
+            let rowIndex = targetCell.dataset.rowIndex;
+            let colIndex = targetCell.dataset.colIndex;
+            const form = targetCell.dataset.form;
+
+            if (!basePrimeSeries) {
+                console.error('Base prime series is not available.');
+                return;
+            }
+
+            const prime0 = basePrimeSeries;
+            const inversion0 = generateInversion(prime0);
+
+            let pSeriesToDisplay = null;
+            let iSeriesToDisplay = null;
+            let rSeriesToDisplay = null;
+            let irSeriesToDisplay = null;
+            let pLabel = '';
+            let iLabel = '';
+            let rLabel = '';
+            let irLabel = '';
+            
+            if (rowIndex && colIndex) {
+                // Click on a note cell
+                const row = parseInt(rowIndex);
+                const col = parseInt(colIndex);
+                
+                // P series is the row
+                const pTransposition = (inversion0[row] - prime0[0] + 12) % 12;
+                pSeriesToDisplay = prime0.map(note => (note + pTransposition) % 12);
+                pLabel = `P${(prime0[0] + pTransposition) % 12}`;
+                
+                // I series is the column
+                const iTransposition = (prime0[col] - inversion0[0] + 12) % 12;
+                iSeriesToDisplay = inversion0.map(note => (note + iTransposition) % 12);
+                iLabel = `I${(inversion0[0] + iTransposition) % 12}`;
+                
+                // R is retrograde of P
+                rSeriesToDisplay = generateRetrograde(pSeriesToDisplay);
+                rLabel = `R${(rSeriesToDisplay[0] + inversion0[0] - prime0[0] + 12) % 12}`;
+                
+                // IR is retrograde of I
+                irSeriesToDisplay = generateRetrograde(iSeriesToDisplay);
+                irLabel = `IR${(irSeriesToDisplay[0] + inversion0[0] - prime0[0] + 12) % 12}`;
+
+            } else if (form) {
+                // Click on a header cell
+                const index = parseInt(rowIndex || colIndex);
+
+                if (form === 'prime') {
+                    const pTransposition = (inversion0[index] - prime0[0] + 12) % 12;
+                    pSeriesToDisplay = prime0.map(note => (note + pTransposition) % 12);
+                    iSeriesToDisplay = generateInversion(pSeriesToDisplay);
+                    rSeriesToDisplay = generateRetrograde(pSeriesToDisplay);
+                    irSeriesToDisplay = generateRetrograde(iSeriesToDisplay);
+                    pLabel = `P${index}`;
+                    iLabel = `I${(inversion0[index])}`;
+                    rLabel = `R${index}`;
+                    irLabel = `IR${(pSeriesToDisplay[11] - inversion0[0] + 12) % 12}`;
+
+                } else if (form === 'inversion') {
+                    const iTransposition = (prime0[index] - inversion0[0] + 12) % 12;
+                    iSeriesToDisplay = inversion0.map(note => (note + iTransposition) % 12);
+                    pSeriesToDisplay = generateInversion(iSeriesToDisplay);
+                    rSeriesToDisplay = generateRetrograde(pSeriesToDisplay);
+                    irSeriesToDisplay = generateRetrograde(iSeriesToDisplay);
+                    pLabel = `P${(prime0[0] + inversion0[0] - prime0[0] + 12) % 12}`;
+                    iLabel = `I${index}`;
+                    rLabel = `R${(pSeriesToDisplay[0] - inversion0[0] + 12) % 12}`;
+                    irLabel = `IR${index}`;
+                
+                } else if (form === 'retrograde') {
+                    const rTransposition = (prime0[11] - inversion0[0] + 12) % 12;
+                    const rSeries = generateRetrograde(prime0.map(note => (note + rTransposition) % 12));
+                    rSeriesToDisplay = rSeries;
+                    pSeriesToDisplay = generateRetrograde(rSeries);
+                    iSeriesToDisplay = generateInversion(pSeriesToDisplay);
+                    irSeriesToDisplay = generateRetrograde(iSeriesToDisplay);
+                    pLabel = `P${(rSeries[11] - inversion0[0] + 12) % 12}`;
+                    iLabel = `I${(inversion0[index] + prime0[0] - inversion0[0] + 12) % 12}`;
+                    rLabel = `R${index}`;
+                    irLabel = `IR${(rSeries[0] - inversion0[0] + 12) % 12}`;
+
+                } else if (form === 'inversionRetrograde') {
+                    const irTransposition = (inversion0[11] - prime0[0] + 12) % 12;
+                    const irSeries = generateRetrograde(inversion0.map(note => (note + irTransposition) % 12));
+                    irSeriesToDisplay = irSeries;
+                    iSeriesToDisplay = generateRetrograde(irSeries);
+                    pSeriesToDisplay = generateInversion(iSeriesToDisplay);
+                    rSeriesToDisplay = generateRetrograde(pSeriesToDisplay);
+                    pLabel = `P${(irSeries[11] - inversion0[0] + 12) % 12}`;
+                    iLabel = `I${(irSeries[0] - inversion0[0] + 12) % 12}`;
+                    rLabel = `R${(irSeries[0] - inversion0[0] + 12) % 12}`;
+                    irLabel = `IR${index}`;
+                }
+            } else {
+                return;
+            }
+
+            if (!pSeriesToDisplay) {
+                return;
+            }
+
+            const displaySection = document.getElementById('matrix-series-display');
+            if (displaySection) {
+                displaySection.classList.remove('hidden');
+            }
+
+            const matrixPrimeHeader = document.getElementById('matrixPrimeHeader');
+            if (matrixPrimeHeader) { matrixPrimeHeader.textContent = pLabel; }
+            renderSeries('matrixPrimeSeries', pSeriesToDisplay);
+
+            const matrixInversionHeader = document.getElementById('matrixInversionHeader');
+            if (matrixInversionHeader) { matrixInversionHeader.textContent = iLabel; }
+            renderSeries('matrixInversionSeries', iSeriesToDisplay);
+            
+            const matrixRetrogradeHeader = document.getElementById('matrixRetrogradeHeader');
+            if (matrixRetrogradeHeader) { matrixRetrogradeHeader.textContent = rLabel; }
+            renderSeries('matrixRetrogradeSeries', rSeriesToDisplay);
+            
+            const matrixInversionRetrogradeHeader = document.getElementById('matrixInversionRetrogradeHeader');
+            if (matrixInversionRetrogradeHeader) { matrixInversionRetrogradeHeader.textContent = irLabel; }
+            renderSeries('matrixInversionRetrogradeSeries', irSeriesToDisplay);
+        }
+        
+        /**
+         * Highlights the row and column of the hovered matrix cell.
+         * @param {Event} event - The mouseover event.
+         */
+        function handleMatrixMouseOver(event) {
+            const cell = event.target;
+            // Ensure the event is on the cell or header
+            let targetCell = cell;
+            if (cell.tagName === 'DIV') {
+                targetCell = cell.parentElement;
+            }
+
+            if (targetCell.tagName !== 'TD' && targetCell.tagName !== 'TH') return;
+            
+            const rowIndex = targetCell.dataset.rowIndex;
+            const colIndex = targetCell.dataset.colIndex;
+            
+            if (rowIndex) {
+                document.querySelectorAll(`#matrixTable [data-row-index="${rowIndex}"]`).forEach(el => el.classList.add('matrix-hover-highlight-row'));
+            }
+            if (colIndex) {
+                document.querySelectorAll(`#matrixTable [data-col-index="${colIndex}"]`).forEach(el => el.classList.add('matrix-hover-highlight-col'));
+            }
+        }
+
+        /**
+         * Removes the row and column highlights when the mouse leaves a matrix cell.
+         */
+        function handleMatrixMouseOut() {
+            document.querySelectorAll('.matrix-hover-highlight-row').forEach(el => el.classList.remove('matrix-hover-highlight-row'));
+            document.querySelectorAll('.matrix-hover-highlight-col').forEach(el => el.classList.remove('matrix-hover-highlight-col'));
+        }
+
+        // --- Main execution block ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Event listener for playback buttons using event delegation on the body
+            document.body.addEventListener('click', (event) => {
+                const playButton = event.target.closest('.play-button');
+                const stopButton = event.target.closest('.stop-button');
+                
+                if (playButton) {
+                    // Stop any ongoing playback before starting a new one
+                    stopPlaying();
+
+                    const seriesType = playButton.dataset.seriesType;
+                    const seriesId = playButton.dataset.seriesId;
+
+                    // Lógica para botones de reproducción de segmentos
+                    if (playButton.classList.contains('play-group-button')) {
+                        const groupSize = parseInt(playButton.dataset.groupSize);
+                        const series = currentSeriesData[seriesType];
+                        const containerId = playButton.dataset.seriesId;
+                        if (series && containerId) {
+                            playGroupedSeries(series, groupSize, containerId);
+                        } else {
+                             console.error('No se puede reproducir la serie segmentada, datos no disponibles.');
+                        }
+                    } 
+                    // Lógica para botones de reproducción de series completas (principales y de la matriz)
+                    else if (seriesId) {
+                        const seriesElements = document.getElementById(seriesId);
+                        if (seriesElements) {
+                            const notes = Array.from(seriesElements.children).map(li => useNoteNames ? noteNames.indexOf(li.textContent) : parseInt(li.textContent));
+                            playSeries(notes, seriesId);
+                        } else {
+                             console.error(`No se puede encontrar el elemento de la serie con el ID: ${seriesId}`);
+                        }
+                    } else {
+                        console.error('No se puede reproducir, el tipo de botón o el ID de la serie no son válidos.');
+                    }
+                } else if (stopButton) {
+                    stopPlaying();
+                }
+            });
+
+            // Event listener for main action buttons
+            document.getElementById('generateRandomButton')?.addEventListener('click', () => {
+                stopPlaying();
+                currentTransposeIndex = 0;
+                renderTransposeButtons();
+                generateAndRenderSeries(generateRandomSeries());
+            });
+
+            document.getElementById('saveButton')?.addEventListener('click', () => {
+                const appCard = document.getElementById('appCard');
+                if (appCard) {
+                    html2canvas(appCard).then(canvas => {
+                        const link = document.createElement('a');
+                        link.download = 'dodecaphonic-matrix.png';
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
                     });
                 }
-            };
+            });
 
-            const handleMatrixMouseOut = () => {
-                document.querySelectorAll('.matrix-hover-highlight-row').forEach(cell => cell.classList.remove('matrix-hover-highlight-row'));
-                document.querySelectorAll('.matrix-hover-highlight-col').forEach(cell => cell.classList.remove('matrix-hover-highlight-col'));
-            };
-
-            // Function to clear all matrix highlights
-            const clearMatrixHighlights = () => {
-                document.querySelectorAll('.matrix-cell-highlight').forEach(cell => cell.classList.remove('matrix-cell-highlight'));
-                document.querySelectorAll('.matrix-header-highlight').forEach(header => header.classList.remove('matrix-header-highlight'));
-            };
-
-            // Main function to generate a NEW series and render everything.
-            const generateAndRenderSeries = (sourceSeries) => {
-                stopAllPlayback();
-                
-                const transposedPrime = transposeSeries(sourceSeries, currentTransposeIndex);
-                
-                const inversionSeries = getInversion(transposedPrime);
-                const retrogradeSeries = getRetrograde(transposedPrime);
-                const inversionRetrogradeSeries = getInversionRetrograde(transposedPrime);
-
-                currentSeriesData = {
-                    prime: transposedPrime,
-                    inversion: inversionSeries,
-                    retrograde: retrogradeSeries,
-                    inversionRetrograde: inversionRetrogradeSeries,
-                };
-                
-                currentMatrix = generateMatrix(transposedPrime);
-
-                // Render all series with the current notation
-                updateNotationDisplay();
-                clearMatrixHighlights();
-                document.getElementById('matrixSeriesDisplay').classList.add('hidden');
-                
-                // Update custom input fields
-                renderCustomInputFields();
-            };
-
-            // Function to update the display based on the current notation
-            const updateNotationDisplay = () => {
-                if (!currentSeriesData) return; // Exit if no data is generated yet.
-
-                const { prime, inversion, retrograde, inversionRetrograde } = currentSeriesData;
-                
-                renderSeriesWithNotation('primeSeries', prime, currentNotation);
-                renderSeriesWithNotation('inversionSeries', inversion, currentNotation);
-                renderSeriesWithNotation('retrogradeSeries', retrograde, currentNotation);
-                renderSeriesWithNotation('inversionRetrogradeSeries', inversionRetrograde, currentNotation);
-                renderMatrix(currentMatrix, currentNotation);
-                
-                const groupSelect = document.getElementById('groupSelect');
-                renderGroupedSeries(prime, parseInt(groupSelect.value), currentNotation);
-                
-                // Re-render the selected series if the matrix display is active
-                if (!document.getElementById('matrixSeriesDisplay').classList.contains('hidden')) {
-                    const selectedP = selectedMatrixSeries.P;
-                    const selectedI = selectedMatrixSeries.I;
-                    const selectedR = selectedMatrixSeries.R;
-                    const selectedIR = selectedMatrixSeries.IR;
-                    
-                    if (selectedP) renderSeriesWithNotation('selectedSeriesNotesP', selectedP, currentNotation);
-                    if (selectedI) renderSeriesWithNotation('selectedSeriesNotesI', selectedI, currentNotation);
-                    if (selectedR) renderSeriesWithNotation('selectedSeriesNotesR', selectedR, currentNotation);
-                    if (selectedIR) renderSeriesWithNotation('selectedSeriesNotesIR', selectedIR, currentNotation);
+            document.getElementById('toggleNotationButton')?.addEventListener('click', () => {
+                stopPlaying();
+                useNoteNames = !useNoteNames;
+                const notationHelpText = document.getElementById('notationHelpText');
+                if (notationHelpText) {
+                    notationHelpText.style.display = useNoteNames ? 'block' : 'none';
                 }
-            };
-
-            // Function to save the interface as an image
-            const saveAsImage = () => {
-                // Get the original card element
-                const appCard = document.getElementById('appCard');
-                
-                // Create a clone of the card to work with
-                const clone = appCard.cloneNode(true);
-                clone.style.position = 'absolute';
-                clone.style.left = '-9999px';
-                document.body.appendChild(clone);
-                
-                // Find the matrix container inside the clone and adjust its style
-                const matrixContainer = clone.querySelector('.matrix-container');
-                if (matrixContainer) {
-                    matrixContainer.style.overflowX = 'visible';
-                    matrixContainer.style.width = 'max-content';
+                if (basePrimeSeries) {
+                    generateAndRenderSeries(basePrimeSeries, currentTransposeIndex);
                 }
                 
-                // Capture the screenshot of the clone
-                html2canvas(clone, {
-                    scale: 2,
-                    useCORS: true
-                }).then(canvas => {
-                    const link = document.createElement('a');
-                    link.download = 'serie-dodecafonica.png';
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                    
-                    // Remove the clone from the body after saving
-                    document.body.removeChild(clone);
-                });
-            };
-
-            // --- SAVE/LOAD FUNCTIONS ---
-            const saveSeries = () => {
-                const seriesName = document.getElementById('seriesNameInput').value;
-                if (!seriesName) {
-                    console.error('El nombre de la serie no puede estar vacío.');
-                    return;
+                const button = document.getElementById('toggleNotationButton');
+                if (button) {
+                    if (useNoteNames) {
+                        button.textContent = 'Cambiar a Notación Numérica';
+                    } else {
+                        button.textContent = 'Cambiar a Notación de Notas';
+                    }
                 }
-                if (!currentSeriesData || !currentSeriesData.prime) {
-                    console.error('No hay una serie para guardar.');
-                    return;
-                }
-                savedSeries[seriesName] = currentSeriesData.prime;
-                localStorage.setItem('dodecafonicaSavedSeries', JSON.stringify(savedSeries));
-                renderSavedSeriesList();
-                document.getElementById('seriesNameInput').value = '';
-            };
+            });
             
-            const loadSeries = (seriesName) => {
-                const series = savedSeries[seriesName];
-                if (series) {
-                    generateAndRenderSeries(series);
-                    // Reset transpose index since we're loading a new P-0
+            // Event listeners for custom input series
+            document.getElementById('generateCustomButton')?.addEventListener('click', () => {
+                stopPlaying();
+                const inputs = document.querySelectorAll('.custom-series-input');
+                const customSeries = [];
+                let isValid = true;
+                const seenNotes = new Set();
+                inputs.forEach(input => {
+                    const value = parseInt(input.value);
+                    if (isNaN(value) || value < 0 || value > 11 || seenNotes.has(value)) {
+                        isValid = false;
+                    }
+                    seenNotes.add(value);
+                    customSeries.push(value);
+                });
+
+                const errorText = document.getElementById('customInputError');
+                if (isValid) {
+                    if (errorText) errorText.classList.add('hidden');
                     currentTransposeIndex = 0;
                     renderTransposeButtons();
-                }
-            };
-
-            const deleteSeries = (seriesName) => {
-                delete savedSeries[seriesName];
-                localStorage.setItem('dodecafonicaSavedSeries', JSON.stringify(savedSeries));
-                renderSavedSeriesList();
-            };
-
-            const loadSavedSeriesFromLocalStorage = () => {
-                const savedData = localStorage.getItem('dodecafonicaSavedSeries');
-                if (savedData) {
-                    savedSeries = JSON.parse(savedData);
+                    generateAndRenderSeries(customSeries);
                 } else {
-                    savedSeries = {};
-                }
-                renderSavedSeriesList();
-            };
-
-            const renderSavedSeriesList = () => {
-                const list = document.getElementById('savedSeriesList');
-                list.innerHTML = '';
-                const seriesNames = Object.keys(savedSeries);
-                if (seriesNames.length === 0) {
-                    list.innerHTML = '<li class="text-center text-gray-500 py-4">No hay series guardadas.</li>';
-                } else {
-                    seriesNames.forEach(name => {
-                        const li = document.createElement('li');
-                        li.className = 'saved-series-item';
-                        
-                        const span = document.createElement('span');
-                        span.textContent = name;
-                        span.addEventListener('click', () => loadSeries(name));
-                        
-                        const deleteButton = document.createElement('button');
-                        deleteButton.textContent = 'Eliminar';
-                        deleteButton.addEventListener('click', () => deleteSeries(name));
-                        
-                        li.appendChild(span);
-                        li.appendChild(deleteButton);
-                        list.appendChild(li);
-                    });
-                }
-            };
-
-            // --- EVENT LISTENERS ---
-
-            // Play/Stop button event listeners
-            document.getElementById('appCard').addEventListener('click', (event) => {
-                const playButton = event.target.closest('button.play-button');
-                const stopButton = event.target.closest('button.stop-button');
-
-                if (playButton) {
-                    const seriesType = playButton.dataset.seriesType;
-                    const targetUlId = playButton.dataset.targetId;
-                    const groupIndex = playButton.dataset.groupIndex;
-
-                    let seriesToPlay;
-
-                    // Handle melodic playback
-                    if (targetUlId) {
-                        if (targetUlId.startsWith('selected')) {
-                            if (selectedMatrixSeries && selectedMatrixSeries[seriesType]) {
-                                seriesToPlay = selectedMatrixSeries[seriesType];
-                            }
-                        } else if (currentSeriesData && currentSeriesData[seriesType]) {
-                            seriesToPlay = currentSeriesData[seriesType];
-                        }
-                        if (seriesToPlay) {
-                            playMelodicSeries(seriesToPlay, targetUlId);
-                        }
-                    }
-                    // Handle harmonic playback for grouped series
-                    else if (groupIndex) {
-                        const groupSize = parseInt(document.getElementById('groupSelect').value);
-                        const startIndex = parseInt(groupIndex);
-                        const groupToPlay = currentSeriesData.prime.slice(startIndex, startIndex + groupSize);
-                        const groupUlId = `groupSeries-${startIndex}`;
-                        playHarmonicSeries(groupToPlay, groupUlId);
-                    } else {
-                        console.error('Series not found for playback.');
-                    }
-                }
-
-                if (stopButton) {
-                    stopAllPlayback();
+                    if (errorText) errorText.classList.remove('hidden');
                 }
             });
 
-            // Generate random series button
-            document.getElementById('generateRandomButton').addEventListener('click', () => {
-                const newSeries = generateRandomSeries();
-                generateAndRenderSeries(newSeries);
+            document.getElementById('clearCustomButton')?.addEventListener('click', () => {
+                document.querySelectorAll('.custom-series-input').forEach(input => input.value = '');
+                const errorText = document.getElementById('customInputError');
+                if (errorText) errorText.classList.add('hidden');
+            });
+            
+            // Event listeners for playback controls
+            document.getElementById('volumeSlider')?.addEventListener('input', (event) => {
+                pianoSynth.volume.value = event.target.value;
             });
 
-            // Generate custom series button
-            document.getElementById('generateCustomButton').addEventListener('click', () => {
-                const customInputs = document.querySelectorAll('.custom-series-input-container input');
-                const newSeries = validateCustomSeries([...customInputs]);
-                if (newSeries) {
-                    generateAndRenderSeries(newSeries);
+            document.getElementById('tempoSlider')?.addEventListener('input', (event) => {
+                const tempo = event.target.value;
+                Tone.Transport.bpm.value = tempo;
+                const tempoValue = document.getElementById('tempoValue');
+                if (tempoValue) tempoValue.textContent = `${tempo} bpm`;
+            });
+
+            // Event listeners for grouping
+            document.getElementById('groupSelect')?.addEventListener('change', (event) => {
+                const groupSize = parseInt(event.target.value);
+                renderGroupedSeries(groupSize);
+            });
+            
+            // Event listeners for saving/loading series
+            document.getElementById('saveSeriesButton')?.addEventListener('click', () => {
+                if (basePrimeSeries) {
+                    const seriesNameInput = document.getElementById('seriesNameInput');
+                    const seriesName = seriesNameInput?.value.trim();
+                    if (seriesName) {
+                        savedSeries[seriesName] = basePrimeSeries;
+                        localStorage.setItem('dodecaphonicSavedSeries', JSON.stringify(savedSeries));
+                        renderSavedSeriesList();
+                        seriesNameInput.value = '';
+                    }
                 }
             });
             
-            // Clear custom input fields
-            document.getElementById('clearCustomButton').addEventListener('click', () => {
-                document.querySelectorAll('.custom-series-input-container input').forEach(input => input.value = '');
-            });
-
-            // Save as image button
-            document.getElementById('saveButton').addEventListener('click', saveAsImage);
-
-            // Save series to localStorage button
-            document.getElementById('saveSeriesButton').addEventListener('click', saveSeries);
-
-            // Notation toggle button
-            document.getElementById('toggleNotationButton').addEventListener('click', () => {
-                currentNotation = (currentNotation === 'notes') ? 'numbers' : 'notes';
-                const button = document.getElementById('toggleNotationButton');
-                if (currentNotation === 'notes') {
-                    button.textContent = 'Cambiar a Notación Numérica';
-                } else {
-                    button.textContent = 'Cambiar a Notación de Notas';
-                }
-                updateNotationDisplay();
-            });
-            
-            // Grouping dropdown
-            const groupSelect = document.getElementById('groupSelect');
-            groupSelect.addEventListener('change', (event) => {
-                const newGroupSize = parseInt(event.target.value);
-                if (currentSeriesData && currentSeriesData.prime) {
-                    renderGroupedSeries(currentSeriesData.prime, newGroupSize, currentNotation);
+            document.getElementById('savedSeriesList')?.addEventListener('click', (event) => {
+                const seriesName = event.target.dataset.seriesName;
+                if (seriesName && savedSeries[seriesName]) {
+                    stopPlaying();
+                    currentTransposeIndex = 0;
+                    renderTransposeButtons();
+                    generateAndRenderSeries(savedSeries[seriesName]);
                 }
             });
 
-            // Volume slider
-            const volumeSlider = document.getElementById('volumeSlider');
-            volumeSlider.addEventListener('input', (event) => {
-                volume.volume.value = event.target.value;
-            });
-
-            // Tempo slider
-            const tempoSlider = document.getElementById('tempoSlider');
-            const tempoValue = document.getElementById('tempoValue');
-            tempoSlider.addEventListener('input', (event) => {
-                const newTempo = event.target.value;
-                Tone.Transport.bpm.value = newTempo;
-                tempoValue.textContent = `${newTempo} bpm`;
-            });
-
-            // Transpose buttons container
-            document.getElementById('transposeButtonsContainer').addEventListener('click', (event) => {
+            // Event listener for transposition buttons
+            document.getElementById('transposeButtonsContainer')?.addEventListener('click', (event) => {
                 const button = event.target.closest('.transpose-button');
-                if (button) {
+                if (button && basePrimeSeries) {
+                    stopPlaying();
                     currentTransposeIndex = parseInt(button.dataset.transposeIndex);
                     document.querySelectorAll('.transpose-button').forEach(btn => btn.classList.remove('active'));
                     button.classList.add('active');
-                    if (currentSeriesData) {
-                        const originalPrime = savedSeries[Object.keys(savedSeries).find(key => JSON.stringify(savedSeries[key]) === JSON.stringify(currentSeriesData.prime))] || generateRandomSeries();
-                        generateAndRenderSeries(originalPrime);
-                    }
+                    generateAndRenderSeries(basePrimeSeries, currentTransposeIndex);
                 }
             });
 
             // Listener for matrix clicks
-            document.getElementById('matrixTable').addEventListener('click', handleMatrixClick);
-            document.getElementById('matrixTable').addEventListener('mouseover', handleMatrixMouseOver);
-            document.getElementById('matrixTable').addEventListener('mouseout', handleMatrixMouseOut);
+            document.getElementById('matrixTable')?.addEventListener('click', handleMatrixClick);
+            document.getElementById('matrixTable')?.addEventListener('mouseover', handleMatrixMouseOver);
+            document.getElementById('matrixTable')?.addEventListener('mouseout', handleMatrixMouseOut);
 
             // Initial setup and rendering
             loadSavedSeriesFromLocalStorage();
@@ -1359,5 +1459,3 @@
     </script>
 </body>
 </html>
-
-
